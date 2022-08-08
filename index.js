@@ -1,15 +1,30 @@
-window.addEventListener('load', function() {
-var input = document.getElementById("input");
-input.addEventListener('keyup', function onEvent(e) {
-    if (e.keyCode === 13) {
-        go()
-    }
-});
+const port = "8080"
+const Corrosion = require('./lib/server')
+const express = require('express')
+const app = express()
+
+const proxy = new Corrosion({
+    prefix: "/service/",
+    codec: "xor",
+    title: "Ozone",
+    forceHttps: true,
+    requestMiddleware: [
+        Corrosion.middleware.blacklist([
+            "accounts.google.com",
+        ], "Page is blocked"),
+    ]
 })
 
-function go() {
-  var url = document.getElementById("input").value
-  if (url !== "") {
-  window.location.href = "/service/gateway?url=" + url
-  }
-}
+app.use('/', express.static(__dirname + '/public'));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + "/public/index.html")
+});
+
+app.use('/', function (req, res) {
+  proxy.request(req,res)
+});
+
+app.listen(process.env.PORT || port, () => {
+  console.log(`Ozone is running at localhost:${port}`)
+})
