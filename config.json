@@ -1,5 +1,7 @@
 {
     "port": "8080",
-    "prefix": "/service/",
-    "codec": "xor"
+    "auth": "false",
+    "username": "user",
+    "password": "secret",
+    "chromebook": "false"
 }
